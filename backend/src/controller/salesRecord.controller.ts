@@ -6,6 +6,7 @@ import ErrorHandler from "../utils/ErrorHandler";
 import { calculateHighestProfitableItem } from "../services/salesRecord.service";
 import salesRecordModel from "../model/salesRecord.model";
 import groceryItemModel from "../model/groceryItem.model";
+import { Aggregate } from "mongoose";
 
 // CREATE SALES RECORD
 export const createSalesRecord = async (
@@ -85,3 +86,80 @@ export const calculateHighestProfitableItems = CatchAsyncError(
       );
   }
 );
+
+// GET LATEST SALES
+export const getLatestSales = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const latestSale = await salesRecordModel
+        .find()
+        .populate("itemId")
+        .sort({ timestamp: -1 })
+        .limit(10);
+
+      res.json({
+        success: true,
+        data: latestSale,
+      });
+    } catch (error) {
+      console.log({ getLatestSales: error });
+      return next(new ErrorHandler("Failed to fetch latest sale", 500));
+    }
+  }
+);
+
+export const getTopFiveHighestSales = async (req: Request, res: Response) => {
+  try {
+    const topSales: Aggregate<any[]> = salesRecordModel.aggregate([
+      {
+        $group: {
+          _id: "$itemId",
+          totalRevenue: { $sum: "$totalRevenue" },
+        },
+      },
+
+      {
+        $sort: { totalRevenue: -1 },
+      },
+      {
+        $limit: 5,
+      },
+      {
+        $lookup: {
+          from: "GroceryItem",
+          localField: "itemId",
+          foreignField: "_id",
+          as: "itemId",
+        },
+      },
+    ]);
+
+    const result = await topSales.exec();
+
+    res.json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    console.error("Error fetching top 5 highest sales:", error);
+    res
+      .status(500)
+      .json({ message: "Failed to fetch top 5 highest sales", error });
+  }
+};
+
+export const getTotalSales = async (req: Request, res: Response) => {
+  try {
+    const result = await salesRecordModel.countDocuments();
+
+    res.json({
+      success: true,
+      total: result,
+    });
+  } catch (error) {
+    console.error("Error fetching top 5 highest sales:", error);
+    res
+      .status(500)
+      .json({ message: "Failed to fetch top 5 highest sales", error });
+  }
+};
