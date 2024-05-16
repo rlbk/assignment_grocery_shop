@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from "express";
 import ErrorMiddleware from "./middleware/error";
 import cors from "cors";
 import envConfig from "./config/envConfig";
+import groceryItemRouter from "./routes/groceryItem.route";
 
 const app = express();
 
@@ -17,6 +18,8 @@ app.use(express.json());
 app.get("/", (req: Request, res: Response) => {
   res.json({ message: "Welcome to Grocery shop apis" });
 });
+
+app.use("/api/v1/grocery", groceryItemRouter);
 
 // unknown route
 app.get("*", (req: Request, res: Response, next: NextFunction) => {
