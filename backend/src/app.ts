@@ -3,6 +3,7 @@ import ErrorMiddleware from "./middleware/error";
 import cors from "cors";
 import envConfig from "./config/envConfig";
 import groceryItemRouter from "./routes/groceryItem.route";
+import salesRecordRouter from "./routes/salesRecord.route";
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/api/v1/grocery", groceryItemRouter);
+app.use("/api/v1/sales", salesRecordRouter);
 
 // unknown route
 app.get("*", (req: Request, res: Response, next: NextFunction) => {
