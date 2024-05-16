@@ -4,6 +4,7 @@ import {
   deleteGroceryItem,
   getAllGroceryItem,
   getGroceryItemById,
+  getTotalGroceryItem,
   updateGrocery,
 } from "../controller/groceryItem.controller";
 
@@ -15,5 +16,6 @@ groceryItemRouter
   .put(updateGrocery)
   .get(getGroceryItemById)
   .delete(deleteGroceryItem);
+groceryItemRouter.route("/total").get(getTotalGroceryItem);
 
 export default groceryItemRouter;

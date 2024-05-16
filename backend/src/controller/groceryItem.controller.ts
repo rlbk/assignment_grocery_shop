@@ -76,6 +76,24 @@ export const getGroceryItemById = CatchAsyncError(
   }
 );
 
+export const getTotalGroceryItem = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const result = await groceryItemModel.countDocuments();
+
+    res.json({
+      success: true,
+      total: result,
+    });
+  } catch (error) {
+    console.log({ getGroceryItemById: error });
+    return next(new ErrorHandler("Failed to fetch total grocery item", 500));
+  }
+};
+
 // UPDATE GROCERY
 export const updateGrocery = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
