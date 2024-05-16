@@ -108,7 +108,11 @@ export const getLatestSales = CatchAsyncError(
   }
 );
 
-export const getTopFiveHighestSales = async (req: Request, res: Response) => {
+export const getTopFiveHighestSales = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const topSales: Aggregate<any[]> = salesRecordModel.aggregate([
       {
@@ -141,14 +145,16 @@ export const getTopFiveHighestSales = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error) {
-    console.error("Error fetching top 5 highest sales:", error);
-    res
-      .status(500)
-      .json({ message: "Failed to fetch top 5 highest sales", error });
+    console.log({ getTopFiveHighestSales: error });
+    return next(new ErrorHandler("Failed to fetch top 5 highest sales", 500));
   }
 };
 
-export const getTotalSales = async (req: Request, res: Response) => {
+export const getTotalSales = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const result = await salesRecordModel.countDocuments();
 
@@ -157,9 +163,7 @@ export const getTotalSales = async (req: Request, res: Response) => {
       total: result,
     });
   } catch (error) {
-    console.error("Error fetching top 5 highest sales:", error);
-    res
-      .status(500)
-      .json({ message: "Failed to fetch top 5 highest sales", error });
+    console.log({ getTotalSales: error });
+    return next(new ErrorHandler("Failed to fetch top 5 highest sales", 500));
   }
 };
