@@ -1,5 +1,6 @@
 import { Response } from "express";
 import salesRecordModel from "../model/salesRecord.model";
+import groceryItemModel from "../model/groceryItem.model";
 
 export const calculateHighestProfitableItem = async (
   startTime: Date,
@@ -32,7 +33,9 @@ export const calculateHighestProfitableItem = async (
   res.json({
     success: true,
     timeframe,
-    highestProfitableItemId,
+    highestProfitableItem: await groceryItemModel.findById(
+      highestProfitableItemId
+    ),
     totalRevenue: highestRevenue,
   });
 };

@@ -18,6 +18,7 @@ export const createGroceryItem = CatchAsyncError(
         costPrice,
         sellingPrice,
       });
+
       res.status(201).json({
         success: true,
         message: "Grocery item created successfully",
@@ -44,6 +45,7 @@ export const getAllGroceryItem = CatchAsyncError(
       res.json({
         success: true,
         totalPages,
+        total: count,
         page,
         perPage: limit,
         data: items,

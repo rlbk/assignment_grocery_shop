@@ -14,13 +14,12 @@ export const createSalesRecord = async (
   res: Response,
   next: NextFunction
 ) => {
-  const itemId = req.params?.itemId;
   try {
-    const { quantitySold } = req.body;
-    if (!quantitySold)
+    const { quantitySold, itemId } = req.body;
+    if (!quantitySold || !itemId)
       return next(
         new ErrorHandler(
-          `Cannot add sales record with invalid quantitySold: ${quantitySold}`,
+          `Cannot add sales record with invalid quantitySold :${quantitySold} or itemId : ${itemId}`,
           400
         )
       );
@@ -38,7 +37,9 @@ export const createSalesRecord = async (
       quantitySold,
       totalRevenue,
     });
-
+    await groceryItemModel.findByIdAndUpdate(itemId, {
+      quantity: groceryItem.quantity - quantitySold,
+    });
     res.status(201).json({
       success: true,
       message: "Sales record added successfully",
@@ -53,7 +54,7 @@ export const createSalesRecord = async (
 // CALCULATE HIGEST PROFITABLE ITEMS
 export const calculateHighestProfitableItems = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
-    const timeframe = req.params?.timeframe?.toLowerCase();
+    const timeframe = req.query?.timeframe;
     if (timeframe === "day" || timeframe === "week" || timeframe === "month") {
       try {
         const today = new Date();
@@ -119,6 +120,7 @@ export const getTopFiveHighestSales = async (
         $group: {
           _id: "$itemId",
           totalRevenue: { $sum: "$totalRevenue" },
+          salesCount: { $sum: 1 },
         },
       },
 
@@ -130,11 +132,14 @@ export const getTopFiveHighestSales = async (
       },
       {
         $lookup: {
-          from: "GroceryItem",
-          localField: "itemId",
+          from: "groceryitems",
+          localField: "_id",
           foreignField: "_id",
           as: "itemId",
         },
+      },
+      {
+        $unwind: "$itemId",
       },
     ]);
 

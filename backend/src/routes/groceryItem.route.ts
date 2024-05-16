@@ -10,12 +10,12 @@ import {
 
 const groceryItemRouter = express.Router();
 
+groceryItemRouter.route("/total/count").get(getTotalGroceryItem);
 groceryItemRouter.route("/").post(createGroceryItem).get(getAllGroceryItem);
 groceryItemRouter
   .route("/:id")
   .put(updateGrocery)
   .get(getGroceryItemById)
   .delete(deleteGroceryItem);
-groceryItemRouter.route("/total").get(getTotalGroceryItem);
 
 export default groceryItemRouter;
